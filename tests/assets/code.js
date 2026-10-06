@@ -1,0 +1,16 @@
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';
+const message = 'hello from compact-embed';

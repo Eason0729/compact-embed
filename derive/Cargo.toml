@@ -1,0 +1,20 @@
+[package]
+name = "compact-embed-derive"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+description = "Derive macro for compact-embed"
+license = "MIT"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+syn = "2"
+zstd = { version = "0.13.3", default-features = false }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+

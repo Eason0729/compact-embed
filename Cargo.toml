@@ -1,0 +1,22 @@
+[package]
+name = "compact-embed"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+description = "Embed one compressed-or-original representation per asset with bounded compile-time input"
+license = "MIT"
+
+[workspace]
+members = ["derive"]
+
+[features]
+default = ["derive", "decode"]
+derive = ["dep:compact-embed-derive"]
+decode = ["dep:zstd"]
+
+[dependencies]
+compact-embed-derive = { path = "derive", version = "0.1.0", optional = true, default-features = false }
+zstd = { version = "0.13.3", default-features = false, optional = true }
+
+[dev-dependencies]
+tempfile = "3.27.0"
