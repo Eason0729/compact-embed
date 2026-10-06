@@ -1,6 +1,6 @@
 #![cfg(all(feature = "derive", feature = "decode"))]
 
-use compact_embed::{Embed, Encoding};
+use compact_embed::{Embed, Encoding, MimeType};
 use std::{borrow::Cow, fs, io::Read, path::Path};
 
 #[derive(Embed)]
@@ -22,6 +22,7 @@ struct DevelopmentAssets;
 #[test]
 fn default_mode_uses_disk_in_debug_and_embedded_bytes_in_release() {
     let asset = DevelopmentAssets::get("code.js").unwrap().unwrap();
+    assert_eq!(asset.mime_type, MimeType::JavaScript);
     if cfg!(debug_assertions) {
         assert!(matches!(asset.data, Cow::Owned(_)));
         assert_eq!(asset.encoding, Encoding::Identity);
@@ -33,6 +34,13 @@ fn default_mode_uses_disk_in_debug_and_embedded_bytes_in_release() {
         asset.decoded().unwrap().as_ref(),
         include_bytes!("assets/code.js")
     );
+    assert_eq!(
+        DevelopmentAssets::get("style.CSS")
+            .unwrap()
+            .unwrap()
+            .mime_type,
+        MimeType::Css
+    );
 }
 
 #[test]
@@ -41,7 +49,8 @@ fn derive_serves_one_representation_and_decodes_exactly() {
     assert_eq!(code.encoding, Encoding::Zstd);
     assert!(matches!(code.data, Cow::Borrowed(_)));
     assert!((code.data.len() as u64) < code.original_size);
-    assert_eq!(code.mime_type, "text/javascript; charset=utf-8");
+    assert_eq!(code.mime_type, MimeType::JavaScript);
+    assert_eq!(code.mime_type.as_str(), "text/javascript; charset=utf-8");
     assert_eq!(
         code.decoded().unwrap().as_ref(),
         include_bytes!("assets/code.js")
@@ -50,12 +59,21 @@ fn derive_serves_one_representation_and_decodes_exactly() {
     code.reader().unwrap().read_to_end(&mut streamed).unwrap();
     assert_eq!(streamed, include_bytes!("assets/code.js"));
     let tiny = Assets::get("tiny.txt").unwrap().unwrap();
+    assert_eq!(tiny.mime_type, MimeType::PlainText);
     assert_eq!(tiny.encoding, Encoding::Identity);
     assert_eq!(tiny.data.as_ref(), b"x");
+    assert_eq!(
+        Assets::get("style.CSS").unwrap().unwrap().mime_type,
+        MimeType::Css
+    );
     assert!(matches!(tiny.decoded().unwrap(), Cow::Borrowed(_)));
     assert_eq!(
         Assets::get("empty").unwrap().unwrap().encoding,
         Encoding::Identity
+    );
+    assert_eq!(
+        Assets::get("empty").unwrap().unwrap().mime_type,
+        MimeType::OctetStream
     );
     assert_eq!(
         OriginalAssets::get("code.js").unwrap().unwrap().encoding,

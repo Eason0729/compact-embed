@@ -281,12 +281,12 @@ fn expand(input: DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
     let embedded = quote! {
         {
             if !::compact_embed::valid_path(path) { return Ok(None); }
-            static ASSETS: &[(&str, &[u8], ::compact_embed::Encoding, u64)] = ::compact_embed::__embed_data!(#input);
+            static ASSETS: &[(&str, &[u8], ::compact_embed::Encoding, u64, ::compact_embed::MimeType)] = ::compact_embed::__embed_data!(#input);
             let Ok(index) = ASSETS.binary_search_by(|asset| asset.0.cmp(path)) else { return Ok(None); };
-            let (_, bytes, encoding, original_size) = ASSETS[index];
+            let (_, bytes, encoding, original_size, mime_type) = ASSETS[index];
             Ok(Some(::compact_embed::Asset {
                 data: ::std::borrow::Cow::Borrowed(bytes), encoding, original_size,
-                mime_type: ::compact_embed::mime_type(path),
+                mime_type,
             }))
         }
     };
@@ -330,13 +330,18 @@ fn embed_data(input: DeriveInput) -> syn::Result<proc_macro2::TokenStream> {
         let (bytes, compressed) = payload(&source, &options).map_err(failure)?;
         let bytes = proc_macro2::Literal::byte_string(&bytes);
         let name = source.name;
+        let extension = Path::new(&name)
+            .extension()
+            .and_then(|extension| extension.to_str())
+            .unwrap_or("")
+            .to_ascii_lowercase();
         let size = source.size;
         let encoding = if compressed {
             quote!(::compact_embed::Encoding::Zstd)
         } else {
             quote!(::compact_embed::Encoding::Identity)
         };
-        assets.push(quote!((#name, #bytes as &'static [u8], #encoding, #size)));
+        assets.push(quote!((#name, #bytes as &'static [u8], #encoding, #size, ::compact_embed::MimeType::from_extension(#extension))));
     }
     Ok(quote!(&[#(#assets),*]))
 }

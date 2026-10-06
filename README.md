@@ -69,7 +69,7 @@ The macro rejects symlinks to files or directories, dangling links, cycles, a sy
 
 ## Reading assets
 
-`Asset::data` is the stored payload, `encoding` distinguishes `Identity` from `Zstd`, and `original_size` is the decoded byte length. `mime_type` describes the original filename; unknown extensions use `application/octet-stream`.
+`Asset::data` is the stored payload, `encoding` distinguishes `Identity` from `Zstd`, and `original_size` is the decoded byte length. `mime_type` stores a one-byte `MimeType` enum inferred from the original filename. Embedded assets store this enum at compile time. Use `asset.mime_type.as_str()` for the HTTP Content-Type value; unknown extensions use `MimeType::OctetStream` (`application/octet-stream`).
 
 `reader()` decodes incrementally without retaining the complete output. `decoded()` collects decoded bytes and checks their length against metadata; identity assets return borrowed bytes. When streaming, the caller must validate the final decoded length if needed. The default `decode` feature enables Zstd decoding; disabling it still allows direct delivery of stored bytes.
 

@@ -7,6 +7,9 @@ use std::{
     path::{Component, Path},
 };
 
+mod mime;
+pub use mime::MimeType;
+
 #[cfg(feature = "derive")]
 pub use compact_embed_derive::Embed;
 
@@ -25,7 +28,7 @@ pub struct Asset {
     pub data: Cow<'static, [u8]>,
     pub encoding: Encoding,
     pub original_size: u64,
-    pub mime_type: &'static str,
+    pub mime_type: MimeType,
 }
 
 impl Asset {
@@ -143,33 +146,12 @@ fn reject_symlink(path: &Path) -> io::Result<()> {
 }
 
 #[doc(hidden)]
-pub fn mime_type(path: &str) -> &'static str {
-    match Path::new(path)
-        .extension()
-        .and_then(|extension| extension.to_str())
-        .unwrap_or("")
-        .to_ascii_lowercase()
-        .as_str()
-    {
-        "html" | "htm" => "text/html; charset=utf-8",
-        "css" => "text/css; charset=utf-8",
-        "js" | "mjs" => "text/javascript; charset=utf-8",
-        "json" | "map" => "application/json",
-        "svg" => "image/svg+xml",
-        "png" => "image/png",
-        "jpg" | "jpeg" => "image/jpeg",
-        "webp" => "image/webp",
-        "gif" => "image/gif",
-        "ico" => "image/vnd.microsoft.icon",
-        "woff" => "font/woff",
-        "woff2" => "font/woff2",
-        "ttf" => "font/ttf",
-        "otf" => "font/otf",
-        "wasm" => "application/wasm",
-        "webmanifest" => "application/manifest+json",
-        "txt" | "j2" => "text/plain; charset=utf-8",
-        "xml" => "application/xml",
-        "pdf" => "application/pdf",
-        _ => "application/octet-stream",
-    }
+pub fn mime_type(path: &str) -> MimeType {
+    MimeType::from_extension(
+        &Path::new(path)
+            .extension()
+            .and_then(|extension| extension.to_str())
+            .unwrap_or("")
+            .to_ascii_lowercase(),
+    )
 }
