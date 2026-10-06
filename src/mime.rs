@@ -21,6 +21,7 @@ pub enum MimeType {
     PlainText,
     Xml,
     Pdf,
+    Toml,
 }
 
 impl MimeType {
@@ -46,6 +47,7 @@ impl MimeType {
             Self::PlainText => "text/plain; charset=utf-8",
             Self::Xml => "application/xml",
             Self::Pdf => "application/pdf",
+            Self::Toml => "application/toml",
         }
     }
 
@@ -73,6 +75,7 @@ impl MimeType {
             b"txt" | b"j2" => Self::PlainText,
             b"xml" => Self::Xml,
             b"pdf" => Self::Pdf,
+            b"toml" => Self::Toml,
             _ => Self::OctetStream,
         }
     }

@@ -20,6 +20,21 @@ struct MissingAssets;
 struct DevelopmentAssets;
 
 #[test]
+fn toml_assets_have_mime_metadata_and_preserve_contents() {
+    for asset in [
+        Assets::get("config.TOML").unwrap().unwrap(),
+        DevelopmentAssets::get("config.TOML").unwrap().unwrap(),
+    ] {
+        assert_eq!(asset.mime_type, MimeType::Toml);
+        assert_eq!(asset.mime_type.as_str(), "application/toml");
+        assert_eq!(
+            asset.decoded().unwrap().as_ref(),
+            include_bytes!("assets/config.TOML")
+        );
+    }
+}
+
+#[test]
 fn default_mode_uses_disk_in_debug_and_embedded_bytes_in_release() {
     let asset = DevelopmentAssets::get("code.js").unwrap().unwrap();
     assert_eq!(asset.mime_type, MimeType::JavaScript);

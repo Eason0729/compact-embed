@@ -33,6 +33,7 @@ fn filename_mime_values_and_aliases_are_preserved() {
         ("txt j2", "text/plain; charset=utf-8"),
         ("xml", "application/xml"),
         ("pdf", "application/pdf"),
+        ("toml", "application/toml"),
     ] {
         for extension in extensions.split_whitespace() {
             for extension in [extension.to_owned(), extension.to_ascii_uppercase()] {
